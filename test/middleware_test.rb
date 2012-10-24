@@ -69,14 +69,20 @@ class MiddlewareTest < MiniTest::Unit::TestCase
   end
       
   def test_cache_miss_and_not_found
-    @cache_store.expects(:write).times(0)
+    Cacheable::Middleware.any_instance.stubs(timestamp: 424242)
+    @cache_store.expects(:write).with('"abcd"', [404, 'text/plain', 'Hi', 424242]).times(1)
     
     env = Rack::MockRequest.env_for("http://example.com/index.html")
     
     ware = Cacheable::Middleware.new(method(:not_found), @cache_store)
     result = ware.call(env)
 
-    assert_nil result[1]['Etag']
+    assert env['cacheable.cache']
+    assert env['cacheable.miss']
+        
+    assert_equal '"abcd"', result[1]['ETag']
+    assert_equal 'miss', result[1]['X-Cache']
+    assert_nil env['cacheable.store']
   end
   
   def test_cache_miss_and_store
