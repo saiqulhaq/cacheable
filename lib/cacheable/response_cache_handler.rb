@@ -67,11 +67,8 @@ module Cacheable
         "If-None-Match: #{@env['HTTP_IF_NONE_MATCH']}"
       ].join(", ")
       if @env.has_key?('HTTP_X_CACHEABLE_KEY') && @env['HTTP_X_CACHEABLE_KEY'] != versioned_key_hash
-        str << [
-          "Accept: #{@env['HTTP_ACCEPT']}",
-          "HTTP User-Agent: #{@env['HTTP_USER_AGENT']}",
-          "Rails User-Agent: #{@controller.request.user_agent}"
-        ].join(", ")
+        Cacheable.log "lua cacheable key mismatch! Dumping HTTP request headers:"
+        @controller.request.headers.each { |k,v| Cacheable.log "#{k}: #{v}" if k.to_s.start_with?("HTTP_") }
       end
       str
     end
