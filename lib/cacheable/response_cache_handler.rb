@@ -56,6 +56,12 @@ module Cacheable
       @unversioned_key ||= Cacheable.cache_key_for(key: key_data)
     end
 
+    def dump_cache_key_mismatch?
+      @env.has_key?('HTTP_X_CACHEABLE_KEY') && @env['HTTP_X_CACHEABLE_KEY'] != versioned_key_hash &&
+        @env['HTTP_X_CACHEABLE_SIGNATURE'].present? &&
+        @env['HTTP_X_CACHEABLE_SIGNATURE'].split(',').length == versioned_key.split(',').length
+    end
+
     def cacheable_info_dump
       # This should come from nginx
       suggested_key = @env.has_key?('HTTP_X_CACHEABLE_KEY') ? "#{@env['HTTP_X_CACHEABLE_KEY']} (#{@env['HTTP_X_CACHEABLE_SIGNATURE']})" : nil
@@ -66,7 +72,7 @@ module Cacheable
         "cacheable.key: #{versioned_key_hash}",
         "If-None-Match: #{@env['HTTP_IF_NONE_MATCH']}"
       ].join(", ")
-      if @env.has_key?('HTTP_X_CACHEABLE_KEY') && @env['HTTP_X_CACHEABLE_KEY'] != versioned_key_hash
+      if dump_cache_key_mismatch?
         Cacheable.log "lua cacheable key mismatch! Dumping HTTP request headers:"
         @controller.request.headers.each { |k,v| Cacheable.log "#{k}: #{v}" if k.to_s.start_with?("HTTP_") }
       end
