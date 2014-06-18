@@ -64,7 +64,7 @@ module Cacheable
 
     def cacheable_info_dump
       # This should come from nginx
-      suggested_key = @env.has_key?('HTTP_X_CACHEABLE_KEY') ? "#{@env['HTTP_X_CACHEABLE_KEY']} (#{@env['HTTP_X_CACHEABLE_SIGNATURE']})" : nil
+      suggested_key = @env.has_key?('HTTP_X_CACHEABLE_KEY') && @env.has_key?('HTTP_X_CACHEABLE_SIGNATURE') ? "#{@env['HTTP_X_CACHEABLE_KEY']} (#{@env['HTTP_X_CACHEABLE_SIGNATURE'].force_encoding('UTF-8')})" : nil
       str = [
         "Browser gzip: #{@env['gzip']}",
         "Suggested key: #{suggested_key}",
