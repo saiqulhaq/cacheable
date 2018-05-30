@@ -9,7 +9,8 @@ module Cacheable
 
     def call(env)
       env['cacheable.cache'] = false
-      gzip = env['gzip'] = env['HTTP_ACCEPT_ENCODING'].to_s.include?("gzip")
+      # disable gzip
+      gzip = env['gzip'] = false # env['HTTP_ACCEPT_ENCODING'].to_s.include?("gzip")
 
       status, headers, body = @app.call(env)
 
@@ -47,10 +48,10 @@ module Cacheable
 
           # since we had to generate the gz version above already we may
           # as well serve it if the client wants it
-          if gzip
-            headers['Content-Encoding'] = "gzip"
-            body = [body_gz]
-          end
+          # if gzip
+          #  headers['Content-Encoding'] = "gzip"
+          #  body = [body_gz]
+          # end
         end
 
         # Add X-Cache header
