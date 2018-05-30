@@ -132,13 +132,13 @@ module Cacheable
 
             response.headers['Location'] = location if location
 
-            if request.env["gzip"]
-              response.headers['Content-Encoding'] = "gzip"
-            else
+            # if request.env["gzip"]
+            #  response.headers['Content-Encoding'] = "gzip"
+            # else
               # we have to uncompress because the client doesn't support gzip
-              Cacheable.log "uncompressing for client without gzip"
+            #  Cacheable.log "uncompressing for client without gzip"
               body = Cacheable.decompress(body)
-            end
+            # end
 
             render plain: body, status: status
           end
